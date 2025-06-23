@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>Kalkulator walut</title>
+  <style>
+    body { background: white; padding: 20px; }
+    .container { max-width: 300px; background: #e6d9d9; padding: 20px; }
+    label, select, input, button { width: 100%; margin-top: 20px; margin-bottom: 20px }
+    button { background-color: #6f8670; padding: 10px; }
+    .result { margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Kalkulator Walut</h2>
+    <label for="currency">Wybierz walutę:</label>
+    <select id="currency">
+      {% for code, rate in rates.items() %}
+      <option value="{{ code }}">{{ code }}</option>
+      {% endfor %}
+    </select>
+
+    <label for="amount">Ilość:</label>
+    <input type="number" id="amount" min="0">
+
+    <button onclick="calculate()">Przelicz</button>
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    function calculate() {
+      const currency = document.getElementById("currency").value;
+      const amount = parseFloat(document.getElementById("amount").value);
+      fetch('/convert', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currency, amount })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.result !== undefined) {
+          document.getElementById("result").textContent = `Cena: ${data.result} PLN`;
+        } else {
+          document.getElementById("result").textContent = `Błąd: ${data.error}`;
+        }
+      });
+    }
+  </script>
+</body>
+</html>
